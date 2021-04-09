@@ -1,0 +1,16 @@
+{
+  "name": "google-related-search",
+  "version": "1.0.0",
+  "description": "",
+  "main": "code.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Alireza Esmikhani",
+  "license": "ISC",
+  "dependencies": {
+    "got": "^11.8.2",
+    "xlsx": "^0.16.9",
+    "xml2js": "^0.4.23"
+  }
+}
