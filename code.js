@@ -2,19 +2,39 @@ const got = require("got");
 const xlsx = require("xlsx");
 const convert = require("xml-js");
 
+let keywords = [];
 // Reading main.xlsx
 let workbook = xlsx.readFile("main.xlsx");
-// Reading A2 cell of 'input' sheet
+// Get input sheet
 let first_sheet_name = workbook.SheetNames[0];
-let address_of_cell = "A2";
 // Get worksheet
 let worksheet = workbook.Sheets[first_sheet_name];
-// Find desired cell
-let desired_cell = worksheet[address_of_cell];
-// Get the value
-let disired_value = (desired_cell ? desired_cell.v : undefined);
 
-let URL = `https://google.com/complete/search?output=toolbar&hl=en&q=${disired_value}`;
+// Loop over column A of input sheet
+for (let i = 2;;i++) {
+  // Get keywords from values of column A
+  let address_of_cell = `A${i}`;
+  // Find desired cell
+  let desired_cell = worksheet[address_of_cell];
+  // Get the value
+  let disired_value = (desired_cell ? desired_cell.v : undefined);
+  if (disired_value !== undefined) {
+    keywords.push(disired_value);
+  } else break;
+}
+console.log(keywords);
+
+// Trim spaces and replace space with '+' between multi words keywords
+function keywordCleaner(inputKeyword) {
+  let kw = inputKeyword.trim().match(/\b[^\s][a-z0-9]*\b/gi);
+  let str = "";
+  for (let i = 0; i < kw.length; i++) {
+    str = str + kw[i] + "+";
+  }
+  return str.slice(0, str.length - 1);
+}
+
+let URL = `https://google.com/complete/search?output=toolbar&hl=en&q=${keywordCleaner(keywords[0])}`;
 let queryResults = [];
 let xlsxResult = [];
 
