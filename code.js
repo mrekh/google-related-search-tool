@@ -2,31 +2,32 @@ const got = require("got");
 const xlsx = require("xlsx");
 const convert = require("xml-js");
 
+// Target keywords
 let keywords = [];
+
 // Reading main.xlsx
 let workbook = xlsx.readFile("main.xlsx");
-// Get input sheet
-let first_sheet_name = workbook.SheetNames[0];
-// Get worksheet
-let worksheet = workbook.Sheets[first_sheet_name];
+let first_sheet_name = workbook.SheetNames[0]; // Get input sheet
+let worksheet = workbook.Sheets[first_sheet_name]; // Get worksheet
 
 // Loop over column A of input sheet
 for (let i = 2;;i++) {
-  // Get keywords from values of column A
-  let address_of_cell = `A${i}`;
-  // Find desired cell
-  let desired_cell = worksheet[address_of_cell];
-  // Get the value
-  let disired_value = (desired_cell ? desired_cell.v : undefined);
+  let address_of_cell = `A${i}`; // Get keywords from values of column A
+  let desired_cell = worksheet[address_of_cell]; // Find desired cell
+  let disired_value = (desired_cell ? desired_cell.v : undefined); // Get the value
   if (disired_value !== undefined) {
     keywords.push(disired_value);
   } else break;
 }
-console.log(keywords);
 
 // Trim spaces and replace space with '+' between multi words keywords
 function keywordCleaner(inputKeyword) {
-  let kw = inputKeyword.trim().match(/\b[^\s][a-z0-9]*\b/gi);
+  let kw = inputKeyword.trim();
+  if (kw.charCodeAt(0) >= 0x0600 && kw.charCodeAt(0) <= 0x06FF) {
+    kw = kw.match(/[^\s][\u0600-\u06FF]*/g); // Persian keywrods regex
+  } else {
+    kw = kw.match(/\b[^\s][a-z0-9]*\b/gi); // English keywrods regex
+  }
   let str = "";
   for (let i = 0; i < kw.length; i++) {
     str = str + kw[i] + "+";
@@ -34,7 +35,8 @@ function keywordCleaner(inputKeyword) {
   return str.slice(0, str.length - 1);
 }
 
-let URL = `https://google.com/complete/search?output=toolbar&hl=en&q=${keywordCleaner(keywords[0])}`;
+let URL = `https://google.com/complete/search?output=toolbar&hl=en&q=${keywordCleaner(keywords[2])}`;
+console.log(URL);
 let queryResults = [];
 let xlsxResult = [];
 
@@ -53,12 +55,9 @@ let ws_name = "Output";
 
     // Data of created sheet
     let ws_data = await xlsxResult;
-    // Create a new sheet with our data
-    let ws = xlsx.utils.aoa_to_sheet(ws_data);
-    // Appending created sheet to xlsx file
-    xlsx.utils.book_append_sheet(workbook, ws, ws_name);
-    // Write data to xlsx file
-    xlsx.writeFile(workbook, "main.xlsx");
+    let ws = xlsx.utils.aoa_to_sheet(ws_data); // Create a new sheet with our data
+    xlsx.utils.book_append_sheet(workbook, ws, ws_name); // Appending created sheet to xlsx file
+    xlsx.writeFile(workbook, "main.xlsx"); // Write data to xlsx file
 
     console.log("Let's enjoy! 🥳")
   } catch (error) {
