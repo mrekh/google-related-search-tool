@@ -49,12 +49,13 @@ function keywordCleaner(inputKeyword) {
       for (let num = 0; num < await queryResults[i].toplevel.CompleteSuggestion.length - 1; num++) {
         xlsxResult.push([queryResults[i].toplevel.CompleteSuggestion[num].suggestion._attributes.data]);
       }
-    }
 
-    // Data of created sheet
-    let ws_data = await xlsxResult;
-    xlsx.utils.sheet_add_aoa(outputWorksheet, ws_data); // Append data to a sheet
-    xlsx.writeFile(workbook, "main.xlsx"); // Write data to xlsx file
+      // Writing data of Output sheet
+      let ws_data = await xlsxResult;
+      xlsx.utils.sheet_add_aoa(outputWorksheet, ws_data, {origin: {r: 0, c: i}}); // Append data to the sheet
+      xlsx.writeFile(workbook, "main.xlsx"); // Write data to xlsx file
+      xlsxResult = [];
+    }
 
     console.log("Let's enjoy! 🥳")
   } catch (error) {
