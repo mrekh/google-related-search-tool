@@ -2,8 +2,7 @@ const got = require("got");
 const xlsx = require("xlsx");
 const convert = require("xml-js");
 
-// Target keywords
-let keywords = [];
+let keywords = []; // Target keywords
 let queryResults = []; // Response body for each keyword
 let depthQueryResults = []; // Response body for each keyword - depth > 0
 let xlsxResult = []; // Value we want to write in our xlsx
@@ -52,17 +51,24 @@ function keywordCleaner(inputKeyword) {
         xlsxResult.push([queryResults[i].toplevel.CompleteSuggestion[num].suggestion._attributes.data]);
       }
 
-      for (let t = 1; t < 10; t++) {
-        URL = `https://google.com/complete/search?output=toolbar&hl=en&q=${keywordCleaner(xlsxResult[t][0])}`;
-        response = await got(URL);
-        depthQueryResults[t - 1] = await convert.xml2js(response.body, {compact: true, spaces: 2});
-        for (let numbers = 1; numbers < await depthQueryResults[t - 1].toplevel.CompleteSuggestion.length; numbers++) {
-          if (xlsxResult.indexOf([depthQueryResults[t - 1].toplevel.CompleteSuggestion[numbers].suggestion._attributes.data]) === -1) {
-            xlsxResult.push([depthQueryResults[t - 1].toplevel.CompleteSuggestion[numbers].suggestion._attributes.data]);
+      if (depth_value !== 0) {
+        let xRL = [1, xlsxResult.length];
+
+        for (let rounds = 1; rounds <= depth_value; rounds++){
+          for (let t = xRL[rounds - 1]; t < xRL[rounds]; t++) {
+            URL = `https://google.com/complete/search?output=toolbar&hl=en&q=${keywordCleaner(xlsxResult[t][0])}`;
+            response = await got(URL);
+            depthQueryResults[t - 1] = await convert.xml2js(response.body, {compact: true, spaces: 2});
+            
+            for (let numbers = 1; numbers < await depthQueryResults[t - 1].toplevel.CompleteSuggestion.length; numbers++) {
+                xlsxResult.push([depthQueryResults[t - 1].toplevel.CompleteSuggestion[numbers].suggestion._attributes.data]);
+            }
+      
+            xRL[rounds + 1] = xlsxResult.length;
           }
         }
       }
-      
+
       // Writing data of Output sheet
       let ws_data = await xlsxResult;
       xlsx.utils.sheet_add_aoa(outputWorksheet, ws_data, {origin: {r: 0, c: i}}); // Append data to the sheet
