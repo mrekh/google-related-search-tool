@@ -1,8 +1,5 @@
 # Node modules
 node_modules
 
-# Main xlsx file
-main.xlsx
-
-#ESLint config file
-.eslintrc.js
+#Git ignore
+.gitignore
