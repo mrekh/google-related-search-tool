@@ -13,7 +13,7 @@ You can get searches related to any query by using **[Google related search tool
 1. Open main.xlsx and in the "keywords" column, write your keywords.
 1. Save main.xlsx and close it
 1. In CMD/Terminal type:
-    1. npm init package.json
+    1. npm install package.json
     1. node code.js
 1. Let's enjoy!
 
