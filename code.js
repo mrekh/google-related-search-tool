@@ -24,6 +24,19 @@ for (let i = 2;;i++) {
 let depth_cell = inputWorksheet["C2"];
 let depth_value = depth_cell ? depth_cell.v : undefined;
 
+// Writing data of the Output sheet
+function writeXlsx(data, column) {
+  let ws_data = data;
+  xlsx.utils.sheet_add_aoa(outputWorksheet, ws_data, {origin: {r: 0, c: column}}); // Append data to the sheet
+  xlsx.writeFile(workbook, "main.xlsx"); // Write data to xlsx file
+  xlsxResult = [];
+}
+
+// API URL
+function URL(keyword) {
+  return `https://google.com/complete/search?output=toolbar&hl=en&q=${keywordCleaner(keyword)}`;
+}
+
 // Trim spaces and replace space with '+' between multi words keywords
 function keywordCleaner(inputKeyword) {
   let kw = inputKeyword.trim();
@@ -41,8 +54,7 @@ function keywordCleaner(inputKeyword) {
 (async () => {
   try {
     for (let i = 0; i < keywords.length; i++) {
-      let URL = `https://google.com/complete/search?output=toolbar&hl=en&q=${keywordCleaner(keywords[i])}`;
-      let response = await got(URL);
+      let response = await got(URL(keywords[i]));
       queryResults[i] = await convert.xml2js(response.body, {compact: true, spaces: 2});
       // Update xlsxResult array which finally write in the Output sheet
       for (let num = 0; num < await queryResults[i].toplevel.CompleteSuggestion.length; num++) {
@@ -53,8 +65,7 @@ function keywordCleaner(inputKeyword) {
       let xRL = [1, xlsxResult.length]; // xlsx result length
       for (let rounds = 1; rounds <= depth_value; rounds++) {
         for (let t = xRL[rounds - 1]; t < xRL[rounds]; t++) {
-          URL = `https://google.com/complete/search?output=toolbar&hl=en&q=${keywordCleaner(xlsxResult[t][0])}`;
-          response = await got(URL);
+          response = await got(URL(xlsxResult[t][0]));
           depthQueryResults[t - 1] = await convert.xml2js(response.body, {compact: true, spaces: 2});
           // Update xlsxResult array which finally write in the Output sheet
           for (let numbers = 1; numbers < await depthQueryResults[t - 1].toplevel.CompleteSuggestion.length; numbers++) {
@@ -65,11 +76,7 @@ function keywordCleaner(inputKeyword) {
         }
       }
 
-      // Writing data of the Output sheet
-      let ws_data = await xlsxResult;
-      xlsx.utils.sheet_add_aoa(outputWorksheet, ws_data, {origin: {r: 0, c: i}}); // Append data to the sheet
-      xlsx.writeFile(workbook, "main.xlsx"); // Write data to xlsx file
-      xlsxResult = [];
+      writeXlsx(xlsxResult, i);
     }
 
     console.log("Let's enjoy! 🥳") // Final step :)
