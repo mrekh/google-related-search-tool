@@ -1,4 +1,4 @@
-# google-related-search-tool
+# Google related search tool
 Find **google related searches** quickly and easily!
 
 ## What are related searches?
