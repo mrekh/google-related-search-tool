@@ -15,14 +15,17 @@ let outputWorksheet = workbook.Sheets[workbook.SheetNames[1]]; // Get Output wor
 // Loop over column A of input sheet
 for (let i = 2;;i++) {
   let desired_cell = inputWorksheet[`A${i}`]; // Get keywords from values of column A & Find desired cell
-  let disired_value = desired_cell ? desired_cell.v : undefined; // Get the value
-  if (disired_value !== undefined) keywords.push(disired_value);
-  else break;
+  if (desired_cell == undefined && i === 2) throw new Error("There is no input keyword. Type your keywords in main.xslx");
+  else if (desired_cell == undefined && i > 2) break;
+  else keywords.push(keywordCleaner(desired_cell.v.trim())); // desired_cell.v: The value of desired cell
 }
 
 // Reading Depth cell
 let depth_cell = inputWorksheet["C2"];
-let depth_value = depth_cell ? depth_cell.v : undefined;
+let depth_value = Number();
+if (depth_cell == undefined) throw new Error("There is no value in main.xlsx depth cell");
+else if (depth_cell.v < 0) throw new Error("You depth value in main.xslx at least must be 0");
+else depth_value = depth_cell.v;
 
 // Writing data of the Output sheet
 function writeXlsx(data, column) {
@@ -34,18 +37,17 @@ function writeXlsx(data, column) {
 
 // API URL
 function URL(keyword) {
-  return `https://google.com/complete/search?output=toolbar&hl=en&q=${keywordCleaner(keyword)}`;
+  return `https://google.com/complete/search?output=toolbar&hl=en&q=${keyword}`;
 }
 
 // Trim spaces and replace space with '+' between multi words keywords
-function keywordCleaner(inputKeyword) {
-  let kw = inputKeyword.trim();
-  if (kw.charCodeAt(0) >= 0x0600 && kw.charCodeAt(0) <= 0x06FF) kw = kw.match(/[^\s][\u0600-\u06FF]*/g); // Persian keywrods regex 
-  else kw = kw.match(/\b[^\s][a-z0-9]*\b/gi); // English keywrods regex
+function keywordCleaner(inputKw) { // inputKw: Input keyword
+  if (inputKw.charCodeAt(0) >= 0x0600 && inputKw.charCodeAt(0) <= 0x06FF) inputKw = inputKw.match(/[^\s][\u0600-\u06FF]*/g); // Persian keywrods regex 
+  else inputKw = inputKw.match(/\b[^\s][a-z0-9]*\b/gi); // English keywrods regex
 
   let str = "";
-  for (let i = 0; i < kw.length; i++) {
-    str = str + kw[i] + "+";
+  for (let i = 0; i < inputKw.length; i++) {
+    str = str + inputKw[i] + "+";
   }
   return str.slice(0, str.length - 1);
 }
@@ -80,7 +82,8 @@ function keywordCleaner(inputKeyword) {
     }
 
     console.log("Let's enjoy! 🥳") // Final step :)
-  } catch (error) {
-    console.log(error.response.body);
+  } catch (err) {
+    if (err == "RequestError: getaddrinfo ENOTFOUND google.com") console.log("There is a network conection issue");
+    else console.log(err);
   }
 })();
