@@ -10,7 +10,8 @@
   "license": "ISC",
   "dependencies": {
     "got": "^11.8.2",
-    "xlsx": "^0.16.9",
+    "package.json": "^2.0.1",
+    "xlsx": "^0.17.4",
     "xml-js": "^1.6.11"
   },
   "devDependencies": {
