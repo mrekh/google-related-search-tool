@@ -1,5 +1,8 @@
 # Node modules
 node_modules
 
-# xlsx file
-main.xlsx
+# VSCode
+.vscode
+
+# System file
+.DS_Store
