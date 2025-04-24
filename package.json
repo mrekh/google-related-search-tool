@@ -1,20 +1,30 @@
 {
-  "name": "google-related-search",
+  "name": "google-related-search-tool",
   "version": "1.0.0",
-  "description": "",
-  "main": "app.js",
+  "description": "A Node.js tool to fetch Google Autocomplete suggestions based on keywords from an Excel file and write the results back to the file.",
+  "main": "dist/app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "start": "node dist/app.js",
+    "dev": "ts-node app.ts"
   },
-  "author": "Alireza Esmikhani",
+  "keywords": [
+    "google",
+    "autocomplete",
+    "suggestions",
+    "excel",
+    "xlsx",
+    "seo"
+  ],
+  "author": "Your Name or Org",
   "license": "ISC",
   "dependencies": {
-    "got": "^11.8.2",
-    "package.json": "^2.0.1",
-    "xlsx": "^0.17.4",
+    "xlsx": "^0.18.5",
     "xml-js": "^1.6.11"
   },
   "devDependencies": {
-    "eslint": "^7.24.0"
+    "@types/node": "^22.14.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
   }
 }
